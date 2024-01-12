@@ -43,6 +43,7 @@ void VulkanTestingApp::cleanup()
 
 void VulkanTestingApp::createInstance()
 {
+    // Check Validation Layers are available if needed
     if (enableValidationLayers && !checkValidationLayerSupport())
     {
         throw std::runtime_error("validation layers requested, but not available!");
@@ -62,13 +63,19 @@ void VulkanTestingApp::createInstance()
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
 
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions;
+    if (enableValidationLayers)
+    {
+        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        createInfo.ppEnabledLayerNames = validationLayers.data();
+    }
+    else
+    {
+        createInfo.enabledLayerCount = 0;
+    }
 
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-    createInfo.enabledExtensionCount = glfwExtensionCount;
-    createInfo.ppEnabledExtensionNames = glfwExtensions;
+    auto extensionNames = getRequiredExtensions();
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(extensionNames.size());
+    createInfo.ppEnabledExtensionNames = extensionNames.data();
 
     createInfo.enabledLayerCount = 0;
 
@@ -122,4 +129,21 @@ bool VulkanTestingApp::checkValidationLayerSupport()
     }
 
     return true;
+}
+
+std::vector<const char*> VulkanTestingApp::getRequiredExtensions()
+{
+    uint32_t glfwExtensionCount = 0;
+    const char** glfwExtensions;
+
+    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+    std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+    if (enableValidationLayers)
+    {
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    }
+
+    return extensions;
 }

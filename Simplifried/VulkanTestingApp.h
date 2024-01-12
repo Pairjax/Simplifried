@@ -39,7 +39,7 @@ private:
 	// Vulkan
 	void createInstance();
 
-	// Validation
 	bool checkValidationLayerSupport();
+	std::vector<const char*> getRequiredExtensions();
 };
 
