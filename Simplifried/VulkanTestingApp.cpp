@@ -43,6 +43,11 @@ void VulkanTestingApp::cleanup()
 
 void VulkanTestingApp::createInstance()
 {
+    if (enableValidationLayers && !checkValidationLayerSupport())
+    {
+        throw std::runtime_error("validation layers requested, but not available!");
+    }
+
     // Defining the basic parameters of this app
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -68,7 +73,8 @@ void VulkanTestingApp::createInstance()
     createInfo.enabledLayerCount = 0;
 
     // Create Instance
-    if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
+    if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) 
+    {
         throw std::runtime_error("failed to create instance!");
     }
 
@@ -82,7 +88,38 @@ void VulkanTestingApp::createInstance()
     // TODO: Replace this with a standardized print between platforms?
     std::cout << "available extensions:\n";
 
-    for (const auto& extension : extensions) {
+    for (const auto& extension : extensions) 
+    {
         std::cout << '\t' << extension.extensionName << '\n';
     }
+}
+
+bool VulkanTestingApp::checkValidationLayerSupport() 
+{
+    uint32_t layerCount;
+    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+    std::vector<VkLayerProperties> availableLayers(layerCount);
+    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+    for (const char* layerName : validationLayers) 
+    {
+        bool layerFound = false;
+
+        for (const auto& layerProperties : availableLayers) 
+        {
+            if (strcmp(layerName, layerProperties.layerName) == 0) 
+            {
+                layerFound = true;
+                break;
+            }
+        }
+
+        if (!layerFound)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
