@@ -24,6 +24,8 @@ private:
 		"VK_LAYER_KHRONOS_validation"
 	};
 
+	VkDebugUtilsMessengerEXT debugMessenger;
+
 #ifdef NDEBUG
 	const bool enableValidationLayers = false;
 #else
@@ -41,5 +43,31 @@ private:
 
 	bool checkValidationLayerSupport();
 	std::vector<const char*> getRequiredExtensions();
+	void setupDebugMessenger();
+
+	void populateApplicationInfo(VkApplicationInfo& appInfo);
+
+	// Debug Messenger
+	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+		VkDebugUtilsMessageTypeFlagsEXT messageType,
+		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+		void* pUserdata
+	);
+
+	VkResult CreateDebugUtilsMessengerEXT(
+		VkInstance instance,
+		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+		const VkAllocationCallbacks* pAllocator,
+		VkDebugUtilsMessengerEXT* pDebugMessenger
+	);
+
+	void DestroyDebugUtilsMessengerEXT(
+		VkInstance instance,
+		VkDebugUtilsMessengerEXT debugMessenger,
+		const VkAllocationCallbacks* pAllocator
+	);
+
+	void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 };
 
